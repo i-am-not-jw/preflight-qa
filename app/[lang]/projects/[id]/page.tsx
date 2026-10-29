@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isLang, t, translate, type Lang } from "@/lib/i18n";
+import { draftFeatureRows } from "@/lib/feature-rows";
+import type { FeatureRow } from "@/lib/feature-table";
+import { isLang, t, type Lang } from "@/lib/i18n";
 import { readProject } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -20,114 +22,67 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
     );
   }
 
+  const rows = draftFeatureRows(project.pages, lang);
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link href={`/${lang}`} className="inline-block text-sm text-stone-500 underline">
         {t(lang, "back")}
       </Link>
-      <p className="mt-4 text-sm font-medium text-stone-500">{t(lang, "draft")}</p>
-      <h1 className="mt-1 break-all text-2xl font-semibold">{project.url}</h1>
+      <p className="mt-4 break-all text-sm text-stone-500">{project.url}</p>
+      <h1 className="mt-1 text-2xl font-semibold">{t(lang, "draft")}</h1>
       {project.description ? <p className="mt-2 text-stone-700">{project.description}</p> : null}
-
-      {project.llmError ? (
-        <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          {translate(lang, project.llmError)}
-        </p>
-      ) : (
-        <p className="mt-6 text-stone-800">{project.summary}</p>
-      )}
-
-      {project.areas.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="mt-6 text-sm text-stone-600">{t(lang, "no_areas")}</p>
       ) : (
-        <FeatureList lang={lang} areas={project.areas} />
+        <FeatureTable lang={lang} rows={rows} />
       )}
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold">{t(lang, "pages", { count: project.pages.length })}</h2>
-        <div className="mt-4 space-y-8">
+      <details className="mt-10 text-sm text-stone-600">
+        <summary className="cursor-pointer">{t(lang, "paths")}</summary>
+        <div className="mt-4 space-y-6">
           {project.pages.map((page) => (
-            <article key={page.url} className="rounded-xl bg-white p-4 shadow-sm">
-              <h3 className="font-medium">{page.title || page.url}</h3>
-              <p className="mt-1 break-all text-sm text-stone-600">
+            <article key={page.url}>
+              <p className="break-all">
                 {page.url}
                 {page.status ? ` · ${page.status}` : ""}
               </p>
-              {page.error ? <p className="mt-2 text-sm text-red-700">{translate(lang, page.error)}</p> : null}
-              <h4 className="mt-3 text-sm font-medium">{t(lang, "paths")}</h4>
-              <ul className="mt-1 space-y-1 break-all text-sm">
-                {(page.paths ?? []).length === 0 ? <li>{t(lang, "none")}</li> : null}
+              <ul className="mt-2 space-y-1 break-all">
                 {(page.paths ?? []).map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <h4 className="mt-3 text-sm font-medium">{t(lang, "clicks")}</h4>
-              <ul className="mt-1 space-y-1 break-all text-sm">
-                {(page.clicks ?? []).length === 0 ? <li>{t(lang, "none")}</li> : null}
-                {(page.clicks ?? []).map((click, index) => (
-                  <li key={`${click.text}-${index}`}>
-                    {click.text || t(lang, "none")} → {clickWhere(lang, click.to)}
-                    {click.note ? ` — ${click.note}` : ""}
-                  </li>
-                ))}
-              </ul>
-              <details className="mt-3 text-sm">
-                <summary className="cursor-pointer text-stone-700">{t(lang, "read")}</summary>
-                <p className="mt-2">
-                  {t(lang, "headings")}: {page.headings.join(" · ") || t(lang, "none")}
-                </p>
-                <p className="mt-1">
-                  {t(lang, "nav")}: {page.nav.join(" · ") || t(lang, "none")}
-                </p>
-                <p className="mt-1">
-                  {t(lang, "buttons")}: {page.buttons.join(" · ") || t(lang, "none")}
-                </p>
-                <p className="mt-1">
-                  {t(lang, "forms")}: {page.forms.length === 0 ? t(lang, "none") : t(lang, "form_count", { count: page.forms.length })}
-                </p>
-              </details>
             </article>
           ))}
         </div>
-      </section>
+      </details>
     </main>
   );
 }
 
-function clickWhere(lang: Lang, to: string): string {
-  if (to === "same_page" || to === "click_failed" || to === "payment_blocked" || to === "submit_blocked") {
-    return t(lang, to);
-  }
-  return to;
+function FeatureTable({ lang, rows }: { lang: Lang; rows: FeatureRow[] }) {
+  return (
+    <div className="mt-6 overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-stone-200 text-left">
+            <th className="border border-stone-300 px-3 py-2">{t(lang, "major")}</th>
+            <th className="border border-stone-300 px-3 py-2">{t(lang, "middle")}</th>
+            <th className="border border-stone-300 px-3 py-2">{t(lang, "minor")}</th>
+            <th className="border border-stone-300 px-3 py-2">{t(lang, "feature_desc")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={`${row.major}-${row.middle}-${row.minor}-${index}`} className="bg-white">
+              <td className="border border-stone-300 px-3 py-2 font-medium">{row.major}</td>
+              <td className="border border-stone-300 px-3 py-2">{row.middle}</td>
+              <td className="border border-stone-300 px-3 py-2">{row.minor}</td>
+              <td className="border border-stone-300 px-3 py-2">{row.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
-function FeatureList({
-  lang,
-  areas,
-}: {
-  lang: Lang;
-  areas: { name: string; features: { name: string; description: string; pageUrl: string; foundBy: string }[] }[];
-}) {
-  return areas.map((area) => (
-    <section key={area.name} className="mt-8">
-      <h2 className="text-lg font-semibold">{area.name}</h2>
-      <ul className="mt-3 space-y-3">
-        {area.features.map((feature) => (
-          <li key={`${area.name}-${feature.name}`} className="rounded-xl bg-white p-4 shadow-sm">
-            <h3 className="font-medium">{feature.name}</h3>
-            <p className="mt-1 text-stone-700">{feature.description}</p>
-            <p className="mt-2 break-all text-sm">
-              {t(lang, "page")}:{" "}
-              <a href={feature.pageUrl} className="underline">
-                {feature.pageUrl}
-              </a>
-            </p>
-            <p className="mt-1 text-sm text-stone-600">
-              {t(lang, "evidence")}: {feature.foundBy}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ));
-}
