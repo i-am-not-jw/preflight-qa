@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LangSwitch } from "@/components/lang-switch";
 import { isLang, t, translate, type Lang } from "@/lib/i18n";
 import { readProject } from "@/lib/store";
 
@@ -24,8 +23,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <LangSwitch lang={lang} path={`/projects/${project.id}`} />
-      <Link href={`/${lang}`} className="mt-4 inline-block text-sm text-stone-500 underline">
+      <Link href={`/${lang}`} className="inline-block text-sm text-stone-500 underline">
         {t(lang, "back")}
       </Link>
       <p className="mt-4 text-sm font-medium text-stone-500">{t(lang, "draft")}</p>

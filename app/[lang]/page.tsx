@@ -1,5 +1,4 @@
 import { DiscoverForm } from "@/components/discover-form";
-import { LangSwitch } from "@/components/lang-switch";
 import { isLang, t } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
@@ -8,8 +7,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   if (!isLang(lang)) notFound();
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <LangSwitch lang={lang} path="" />
-      <p className="mt-4 text-sm font-medium text-stone-500">PreflightQA</p>
+      <p className="text-sm font-medium text-stone-500">PreflightQA</p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">{t(lang, "title")}</h1>
       <p className="mt-3 text-stone-700">{t(lang, "intro")}</p>
       <div className="mt-8">
