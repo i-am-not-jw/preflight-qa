@@ -12,9 +12,9 @@ export async function crawl(start: URL, dir: string): Promise<PageCapture[]> {
   } catch (error) {
     const detail = error instanceof Error ? error.message : "";
     if (detail.includes("Executable doesn't exist") || detail.includes("Please run the following command")) {
-      throw new Error("페이지를 열 브라우저가 없습니다. 터미널에서 npx playwright install chromium 을 실행한 뒤 다시 시도하세요.");
+      throw new Error("browser_missing");
     }
-    throw new Error(detail ? `브라우저를 열지 못했습니다. ${detail.slice(0, 180)}` : "브라우저를 열지 못했습니다.");
+    throw new Error(detail ? `browser_fail: ${detail.slice(0, 180)}` : "browser_fail");
   }
 
   const pages: PageCapture[] = [];
@@ -44,13 +44,13 @@ export async function crawl(start: URL, dir: string): Promise<PageCapture[]> {
         const type = response?.headers()["content-type"] ?? "";
         if (type && !type.includes("html")) continue;
         if (!shouldVisit(start, landed.toString())) {
-          pages.push(blankPage(current, "같은 사이트의 페이지가 아니라서 내용을 저장하지 않았습니다."));
+          pages.push(blankPage(current, "off_site"));
           continue;
         }
         try {
           await ensurePublic(landed, checkedHosts);
         } catch {
-          pages.push(blankPage(current, "공개된 주소가 아니라서 내용을 저장하지 않았습니다."));
+          pages.push(blankPage(current, "not_public"));
           continue;
         }
         const extracted = await page.evaluate(() => {
@@ -145,7 +145,7 @@ export async function crawl(start: URL, dir: string): Promise<PageCapture[]> {
           queue.push(next);
         }
       } catch {
-        pages.push(blankPage(current, "이 페이지를 열지 못했습니다."));
+        pages.push(blankPage(current, "page_open_failed"));
       }
     }
   } finally {

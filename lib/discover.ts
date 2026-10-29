@@ -1,11 +1,12 @@
 import { mkdir } from "node:fs/promises";
 import { crawl } from "./crawl";
 import { draftFeatures } from "./features";
+import type { Lang } from "./i18n";
 import { assertPublicPageUrl } from "./public-url";
 import { projectDir, removeProject, saveProject } from "./store";
 import type { Project } from "./types";
 
-export async function discover(input: { url: string; description: string }): Promise<Project> {
+export async function discover(input: { url: string; description: string; lang: Lang }): Promise<Project> {
   const start = await assertPublicPageUrl(input.url);
   const id = crypto.randomUUID();
   const description = input.description.trim().slice(0, 500);
@@ -14,7 +15,7 @@ export async function discover(input: { url: string; description: string }): Pro
   try {
     const pages = await crawl(start, projectDir(id));
     if (pages.length === 0) {
-      throw new Error("살펴볼 페이지를 찾지 못했습니다.");
+      throw new Error("no_pages");
     }
     const project: Project = {
       id,
@@ -28,14 +29,14 @@ export async function discover(input: { url: string; description: string }): Pro
     };
     const readable = pages.some((page) => !page.error);
     if (!readable) {
-      project.llmError = "페이지를 열지 못해서 기능 초안을 만들지 않았습니다.";
+      project.llmError = "pages_unreadable";
     } else {
       try {
-        const draft = await draftFeatures({ description, pages });
+        const draft = await draftFeatures({ description, pages, lang: input.lang });
         project.summary = draft.summary;
         project.areas = draft.areas;
       } catch (error) {
-        project.llmError = error instanceof Error ? error.message : "기능 초안을 만들지 못했습니다.";
+        project.llmError = error instanceof Error ? error.message : "discover_fail";
       }
     }
     await saveProject(project);

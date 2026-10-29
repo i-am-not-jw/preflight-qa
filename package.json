@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test lib/public-url.test.ts lib/features.test.ts"
+    "test": "node --experimental-strip-types --test lib/public-url.test.ts lib/features.test.ts lib/locale.test.ts"
   },
   "dependencies": {
     "next": "16.4.3",

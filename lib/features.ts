@@ -1,11 +1,15 @@
+import type { Lang } from "./i18n";
 import type { Feature, FeatureArea, PageCapture } from "./types";
 
-const SYSTEM = `당신은 QA 엔지니어입니다. 공개 페이지에서 읽은 내용만으로 기능 목록 초안을 만듭니다.
-로그인 뒤에만 있을 법한 기능, 결제, 실제 데이터 제출은 추측하지 마세요.
-메뉴, 버튼, 제목, 폼에 실제로 있는 것만 기능으로 적으세요.
-답은 JSON 하나만 주세요. 문장은 한국어로 씁니다.
-형식:
-{"summary":"이 제품이 무엇인지 한 문단","areas":[{"name":"영역","features":[{"name":"기능","description":"사용자가 하는 일","pageUrl":"수집된 주소 중 하나","foundBy":"어떤 메뉴, 버튼, 제목, 폼에서 보였는지"}]}]}`;
+function system(lang: Lang) {
+  const language = lang === "en" ? "English" : "Korean";
+  return `You are a QA engineer. Draft a feature list only from the public pages you were given.
+Do not guess features that would exist only after login, payment, or submitting real data.
+Use only menus, buttons, headings, and forms that are actually present.
+Reply with one JSON object and nothing else. Write every sentence in ${language}.
+Shape:
+{"summary":"one paragraph on what this product is","areas":[{"name":"area","features":[{"name":"feature","description":"what the user does","pageUrl":"one of the collected urls","foundBy":"which menu, button, heading, or form showed it"}]}]}`;
+}
 
 export function parseModelJson(text: string): unknown {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -13,22 +17,22 @@ export function parseModelJson(text: string): unknown {
   const start = body.indexOf("{");
   const end = body.lastIndexOf("}");
   if (start < 0 || end <= start) {
-    throw new Error("모델 답에서 기능 목록을 찾지 못했습니다.");
+    throw new Error("model_json_missing");
   }
   try {
     return JSON.parse(body.slice(start, end + 1));
   } catch {
-    throw new Error("모델 답을 기능 목록으로 읽지 못했습니다.");
+    throw new Error("model_json_bad");
   }
 }
 
 export function normalizeDraft(value: unknown): { summary: string; areas: FeatureArea[] } {
   if (!value || typeof value !== "object") {
-    throw new Error("모델이 기능 목록 형식으로 답하지 않았습니다.");
+    throw new Error("model_shape");
   }
   const record = value as { summary?: unknown; areas?: unknown };
   const summary = typeof record.summary === "string" ? record.summary.trim() : "";
-  if (!summary) throw new Error("모델이 제품 요약을 주지 않았습니다.");
+  if (!summary) throw new Error("model_summary");
   const areas: FeatureArea[] = [];
   if (Array.isArray(record.areas)) {
     for (const area of record.areas) {
@@ -63,13 +67,10 @@ function cleanFeature(value: unknown): Feature | null {
 export async function draftFeatures(input: {
   description: string;
   pages: PageCapture[];
+  lang: Lang;
 }): Promise<{ summary: string; areas: FeatureArea[] }> {
   const key = process.env.LLM_API_KEY;
-  if (!key) {
-    throw new Error(
-      "기능 초안을 만들 키가 없습니다. 프로젝트 폴더의 .env.local 파일에 LLM_API_KEY를 넣은 뒤 다시 살펴보세요.",
-    );
-  }
+  if (!key) throw new Error("no_key");
   const base = (process.env.LLM_BASE_URL || "https://api.x.ai/v1").replace(/\/$/, "");
   const model = process.env.LLM_MODEL || "grok-4";
   // shortcut: 토큰 상한과 JSON 모드 플래그는 없다. 답이 잘리거나 설명 문장에 감싸지면 그때 넣는다.
@@ -85,7 +86,7 @@ export async function draftFeatures(input: {
         model,
         temperature: 0.2,
         messages: [
-          { role: "system", content: SYSTEM },
+          { role: "system", content: system(input.lang) },
           {
             role: "user",
             content: JSON.stringify({
@@ -108,18 +109,18 @@ export async function draftFeatures(input: {
   } catch (error) {
     const name = error instanceof Error ? error.name : "";
     if (name === "TimeoutError" || name === "AbortError") {
-      throw new Error("모델 응답이 60초 안에 오지 않았습니다.");
+      throw new Error("model_timeout");
     }
-    throw new Error("모델에 연결하지 못했습니다. LLM_BASE_URL과 네트워크를 확인해 주세요.");
+    throw new Error("model_connect");
   }
   if (!response.ok) {
     const detail = (await response.text()).slice(0, 180);
-    throw new Error(`모델이 거절했습니다 (${response.status}). ${detail}`);
+    throw new Error(`model_rejected: ${response.status} ${detail}`);
   }
   const payload = (await response.json()) as {
     choices?: { message?: { content?: string } }[];
   };
   const text = payload.choices?.[0]?.message?.content;
-  if (!text) throw new Error("모델이 빈 답을 보냈습니다.");
+  if (!text) throw new Error("model_empty");
   return normalizeDraft(parseModelJson(text));
 }

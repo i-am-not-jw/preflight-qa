@@ -38,25 +38,25 @@ export function isPrivateAddress(ip: string): boolean {
 export function parsePageUrl(input: string): URL {
   const trimmed = input.trim();
   if (!trimmed || trimmed.length > 2000) {
-    throw new Error("공개된 사이트 주소를 넣어 주세요.");
+    throw new Error("bad_url");
   }
   const withScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(trimmed) ? trimmed : `https://${trimmed}`;
   let url: URL;
   try {
     url = new URL(withScheme);
   } catch {
-    throw new Error("주소 형식이 아닙니다. https:// 로 시작하는 공개 주소를 넣어 주세요.");
+    throw new Error("bad_url_format");
   }
   if (url.username || url.password) {
-    throw new Error("아이디나 비밀번호가 들어 있는 주소는 받지 않습니다.");
+    throw new Error("credentials_in_url");
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("http 또는 https 주소만 살펴봅니다.");
+    throw new Error("http_only");
   }
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
   if (isIP(host)) {
     if (isPrivateAddress(host)) {
-      throw new Error("공개된 사이트가 아닙니다. 집이나 회사 안의 주소는 살펴보지 않습니다.");
+      throw new Error("private_url");
     }
     return url;
   }
@@ -70,7 +70,7 @@ export function parsePageUrl(input: string): URL {
     /^0x/i.test(host) ||
     (/^[\d.]+$/.test(host) && !isIP(host))
   ) {
-    throw new Error("이 컴퓨터나 회사 안의 주소는 살펴보지 않습니다. 공개된 사이트 주소를 넣어 주세요.");
+    throw new Error("local_url");
   }
   return url;
 }
@@ -82,10 +82,10 @@ export async function assertPublicPageUrl(input: string): Promise<URL> {
   try {
     addresses = await lookup(url.hostname, { all: true, verbatim: true });
   } catch {
-    throw new Error("이 주소를 찾지 못했습니다.");
+    throw new Error("dns_fail");
   }
   if (addresses.length === 0 || addresses.some((item) => isPrivateAddress(item.address))) {
-    throw new Error("공개된 사이트가 아닙니다. 집이나 회사 안의 주소는 살펴보지 않습니다.");
+    throw new Error("private_url");
   }
   return url;
 }

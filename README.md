@@ -12,6 +12,10 @@
 
 ## 실행
 
-`npm run dev` 후 브라우저에서 http://localhost:3000
+`npm run dev` 후 브라우저에서 http://localhost:3000/ko
 
-`npm test`는 주소 판별과 기능 초안 파싱만 확인합니다.
+한국어는 `/ko`, 영어는 `/en`입니다. 주소에 언어가 없으면 `/ko`로 갑니다.
+
+공개 주소는 https://preflight.kogenote.com/ko 와 https://preflight.kogenote.com/en 입니다. 이 주소는 이 컴퓨터에서 `npm run dev`가 켜져 있을 때만 열립니다.
+
+`npm test`는 주소 판별, 기능 초안 파싱, 언어 경로를 확인합니다.
