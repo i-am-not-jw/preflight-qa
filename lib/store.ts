@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Project } from "./types";
 
@@ -30,23 +30,6 @@ export async function readProject(id: string): Promise<Project | null> {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
-}
-
-export async function listProjects(): Promise<Project[]> {
-  let names: string[];
-  try {
-    names = await readdir(projectsRoot);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw error;
-  }
-  const projects: Project[] = [];
-  for (const name of names) {
-    const project = await readProject(name);
-    if (project) projects.push(project);
-  }
-  projects.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-  return projects;
 }
 
 export async function removeProject(id: string): Promise<void> {

@@ -32,8 +32,6 @@ const copy = {
     network: "서버에 연결하지 못했습니다.",
     title: "기능 목록부터 봅니다",
     intro: "공개된 웹앱 주소를 넣으면, 로그인 없이 보이는 페이지를 최대 15개 읽고 기능 목록 초안을 만듭니다. 목록을 고치고, 테스트 케이스를 만들고, 실행하고, 리포트를 내는 단계는 다음입니다.",
-    past: "이전에 살펴본 사이트",
-    empty: "아직 없습니다.",
     url_label: "사이트 주소",
     description_label: "이 제품이 무엇인지 (선택)",
     description_placeholder: "예: 팀이 일정을 공유하는 캘린더",
@@ -86,8 +84,6 @@ const copy = {
     network: "Could not reach the server.",
     title: "Start with the feature list",
     intro: "Enter a public web app address. PreflightQA reads up to 15 pages that open without logging in, then drafts a feature list. Editing that list, writing test cases, running them, and the report come next.",
-    past: "Sites already reviewed",
-    empty: "None yet.",
     url_label: "Site address",
     description_label: "What this product is (optional)",
     description_placeholder: "Example: a calendar a team uses to share schedules",
@@ -139,11 +135,4 @@ export function translate(lang: Lang, message: string | null | undefined): strin
     return `${t(lang, message.slice(0, split))} ${message.slice(split + 2)}`;
   }
   return message;
-}
-
-export function formatWhen(lang: Lang, iso: string): string {
-  return new Intl.DateTimeFormat(lang === "ko" ? "ko-KR" : "en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(iso));
 }
