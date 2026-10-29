@@ -4,9 +4,11 @@ import { translate } from "./i18n.ts";
 import { localizedPath } from "./locale.ts";
 
 describe("locale path", () => {
-  it("sends a bare path to Korean and leaves a language path alone", () => {
-    assert.equal(localizedPath("/"), "/ko");
-    assert.equal(localizedPath("/projects/abc"), "/ko/projects/abc");
+  it("sends a bare path to English and leaves a language path alone", () => {
+    assert.equal(localizedPath("/"), "/en");
+    assert.equal(localizedPath("/projects/abc"), "/en/projects/abc");
+    assert.equal(localizedPath("/ko"), null);
+    assert.equal(localizedPath("/ko/projects/abc"), null);
     assert.equal(localizedPath("/en"), null);
     assert.equal(localizedPath("/en/projects/abc"), null);
     assert.equal(localizedPath("/api/projects"), null);

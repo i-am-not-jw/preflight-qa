@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "missing_url" }, { status: 400 });
   }
   const description = typeof body.description === "string" ? body.description : "";
-  const lang = typeof body.lang === "string" && isLang(body.lang) ? body.lang : "ko";
+  const lang = typeof body.lang === "string" && isLang(body.lang) ? body.lang : "en";
   try {
     const project = await discover({ url: body.url, description, lang });
     return Response.json({ id: project.id });

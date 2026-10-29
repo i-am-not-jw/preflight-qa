@@ -12,9 +12,9 @@
 
 ## 실행
 
-`npm run dev` 후 브라우저에서 http://localhost:3000/ko
+`npm run dev` 후 브라우저에서 http://localhost:3000/en
 
-한국어는 `/ko`, 영어는 `/en`입니다. 주소에 언어가 없으면 `/ko`로 갑니다.
+영어는 `/en`, 한국어는 `/ko`입니다. 주소에 언어가 없으면 `/en`으로 갑니다.
 
 공개 주소는 https://preflight.kogenote.com/ko 와 https://preflight.kogenote.com/en 입니다. 이 주소는 이 컴퓨터에서 `npm run dev`가 켜져 있을 때만 열립니다.
 

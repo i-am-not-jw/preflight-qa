@@ -4,6 +4,6 @@ export function localizedPath(pathname: string): string | null {
   }
   const first = pathname.split("/")[1] ?? "";
   if (first === "ko" || first === "en") return null;
-  if (pathname === "/") return "/ko";
-  return `/ko${pathname}`;
+  if (pathname === "/") return "/en";
+  return `/en${pathname}`;
 }
