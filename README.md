@@ -12,10 +12,17 @@
 
 ## 실행
 
-`npm run dev` 후 브라우저에서 http://localhost:3000/en
+개발 중에는 `npm run dev` 후 http://localhost:3000/en 입니다.
+
+공개 주소는 개발 서버로 켜면 폼이 동작하지 않습니다. 공개용은 아래처럼 운영 빌드로 켭니다.
+
+```
+npm run build
+PLAYWRIGHT_BROWSERS_PATH="$HOME/Library/Caches/ms-playwright" npm start
+```
 
 영어는 `/en`, 한국어는 `/ko`입니다. 주소에 언어가 없으면 `/en`으로 갑니다.
 
-공개 주소는 https://preflight.kogenote.com/ko 와 https://preflight.kogenote.com/en 입니다. 이 주소는 이 컴퓨터에서 `npm run dev`가 켜져 있을 때만 열립니다.
+공개 주소는 https://preflight.kogenote.com/en 과 https://preflight.kogenote.com/ko 입니다. 이 주소는 이 컴퓨터에서 `npm start`가 켜져 있을 때만 열립니다.
 
 `npm test`는 주소 판별, 기능 초안 파싱, 언어 경로를 확인합니다.
