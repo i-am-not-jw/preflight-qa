@@ -19,7 +19,7 @@ const copy = {
     model_json_bad: "모델 답을 기능 목록으로 읽지 못했습니다.",
     model_shape: "모델이 기능 목록 형식으로 답하지 않았습니다.",
     model_summary: "모델이 제품 요약을 주지 않았습니다.",
-    no_key: "기능 초안을 만들 키가 없습니다. 프로젝트 폴더의 .env.local 파일에 LLM_API_KEY를 넣은 뒤 다시 살펴보세요.",
+    no_key: "이 화면은 페이지와 화면 캡처를 보여주는 미리보기입니다. 기능 목록은 Claude Code나 Cursor에서 작성합니다.",
     model_timeout: "모델 응답이 60초 안에 오지 않았습니다.",
     model_connect: "모델에 연결하지 못했습니다. LLM_BASE_URL과 네트워크를 확인해 주세요.",
     model_rejected: "모델이 거절했습니다.",
@@ -71,7 +71,7 @@ const copy = {
     model_json_bad: "The model reply could not be read as a feature list.",
     model_shape: "The model did not reply in the feature list shape.",
     model_summary: "The model did not return a product summary.",
-    no_key: "There is no key for the feature draft. Add LLM_API_KEY to .env.local in the project folder, then look again.",
+    no_key: "This page previews the pages and screenshots. The feature list is written in Claude Code or Cursor.",
     model_timeout: "The model did not reply within 60 seconds.",
     model_connect: "Could not reach the model. Check LLM_BASE_URL and the network.",
     model_rejected: "The model refused the request.",
@@ -126,6 +126,12 @@ export function t(lang: Lang, key: string, vars: Record<string, string | number>
 export function translate(lang: Lang, message: string | null | undefined): string {
   if (!message) return "";
   const ko = copy.ko as Record<string, string>;
+  if (
+    message ===
+    "기능 초안을 만들 키가 없습니다. 프로젝트 폴더의 .env.local 파일에 LLM_API_KEY를 넣은 뒤 다시 살펴보세요."
+  ) {
+    return t(lang, "no_key");
+  }
   if (ko[message]) return t(lang, message);
   // shortcut: results saved before language codes still hold the Korean sentence. Match it back to a code.
   const legacy = Object.keys(ko).find((key) => ko[key] === message);

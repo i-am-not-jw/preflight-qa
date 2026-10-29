@@ -32,4 +32,10 @@ describe("public urls", () => {
     assert.equal(shouldVisit(start, "https://other.example/docs"), null);
     assert.equal(shouldVisit(start, "https://example.com/docs#top"), "https://example.com/docs");
   });
+
+  it("allows loopback only when the local tool asks for it", () => {
+    assert.equal(parsePageUrl("http://localhost:3000/en", { allowLocal: true }).hostname, "localhost");
+    assert.equal(parsePageUrl("http://127.0.0.1:3000", { allowLocal: true }).hostname, "127.0.0.1");
+    assert.throws(() => parsePageUrl("http://192.168.0.5", { allowLocal: true }), Error);
+  });
 });

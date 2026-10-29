@@ -35,7 +35,15 @@ export function isPrivateAddress(ip: string): boolean {
   return false;
 }
 
-export function parsePageUrl(input: string): URL {
+export function isLoopbackHost(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost") || host === "::1") return true;
+  if (!isIP(host) || host.includes(":")) return false;
+  const [a] = host.split(".").map(Number);
+  return a === 127;
+}
+
+export function parsePageUrl(input: string, options?: { allowLocal?: boolean }): URL {
   const trimmed = input.trim();
   if (!trimmed || trimmed.length > 2000) {
     throw new Error("bad_url");
@@ -56,6 +64,7 @@ export function parsePageUrl(input: string): URL {
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
   if (isIP(host)) {
     if (isPrivateAddress(host)) {
+      if (options?.allowLocal && isLoopbackHost(host)) return url;
       throw new Error("private_url");
     }
     return url;
@@ -70,6 +79,7 @@ export function parsePageUrl(input: string): URL {
     /^0x/i.test(host) ||
     (/^[\d.]+$/.test(host) && !isIP(host))
   ) {
+    if (options?.allowLocal && isLoopbackHost(host)) return url;
     throw new Error("local_url");
   }
   return url;

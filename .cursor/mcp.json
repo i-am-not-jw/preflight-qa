@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "preflight-qa": {
+      "command": "npx",
+      "args": ["--prefix", "mcp", "tsx", "mcp/src/index.ts"]
+    }
+  }
+}

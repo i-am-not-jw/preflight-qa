@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "preflight-qa": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--prefix", "mcp", "tsx", "mcp/src/index.ts"]
+    }
+  }
+}
