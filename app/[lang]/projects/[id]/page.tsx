@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLang, t, translate, type Lang } from "@/lib/i18n";
@@ -55,17 +54,23 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
                 {page.status ? ` · ${page.status}` : ""}
               </p>
               {page.error ? <p className="mt-2 text-sm text-red-700">{translate(lang, page.error)}</p> : null}
-              {page.screenshotFile ? (
-                <Image
-                  src={`/api/projects/${project.id}/screenshot/${page.screenshotFile}`}
-                  alt={t(lang, "screen", { title: page.title || page.url })}
-                  width={1280}
-                  height={800}
-                  unoptimized
-                  loading="eager"
-                  className="mt-3 h-auto w-full rounded-lg border border-stone-200"
-                />
-              ) : null}
+              <h4 className="mt-3 text-sm font-medium">{t(lang, "paths")}</h4>
+              <ul className="mt-1 space-y-1 break-all text-sm">
+                {(page.paths ?? []).length === 0 ? <li>{t(lang, "none")}</li> : null}
+                {(page.paths ?? []).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <h4 className="mt-3 text-sm font-medium">{t(lang, "clicks")}</h4>
+              <ul className="mt-1 space-y-1 break-all text-sm">
+                {(page.clicks ?? []).length === 0 ? <li>{t(lang, "none")}</li> : null}
+                {(page.clicks ?? []).map((click, index) => (
+                  <li key={`${click.text}-${index}`}>
+                    {click.text || t(lang, "none")} → {clickWhere(lang, click.to)}
+                    {click.note ? ` — ${click.note}` : ""}
+                  </li>
+                ))}
+              </ul>
               <details className="mt-3 text-sm">
                 <summary className="cursor-pointer text-stone-700">{t(lang, "read")}</summary>
                 <p className="mt-2">
@@ -87,6 +92,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
       </section>
     </main>
   );
+}
+
+function clickWhere(lang: Lang, to: string): string {
+  if (to === "same_page" || to === "click_failed" || to === "payment_blocked" || to === "submit_blocked") {
+    return t(lang, to);
+  }
+  return to;
 }
 
 function FeatureList({

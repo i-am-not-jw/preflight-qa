@@ -13,7 +13,7 @@ export async function discover(input: { url: string; description: string; lang: 
   await mkdir(projectDir(id), { recursive: true });
 
   try {
-    const pages = await crawl(start, projectDir(id));
+    const pages = await crawl(start);
     if (pages.length === 0) {
       throw new Error("no_pages");
     }

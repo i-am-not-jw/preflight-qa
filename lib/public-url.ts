@@ -110,7 +110,6 @@ export function shouldVisit(start: URL, raw: string): string | null {
   if (url.protocol !== "http:" && url.protocol !== "https:") return null;
   if (!sameSite(start, url)) return null;
   if (FILE_EXT.test(url.pathname)) return null;
-  url.hash = "";
   if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
   return url.toString();
 }

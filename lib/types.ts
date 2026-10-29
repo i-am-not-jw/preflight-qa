@@ -15,6 +15,13 @@ export type LinkCapture = {
   href: string;
 };
 
+export type ClickCapture = {
+  text: string;
+  href: string;
+  to: string;
+  note: string;
+};
+
 export type PageCapture = {
   url: string;
   title: string;
@@ -24,6 +31,8 @@ export type PageCapture = {
   buttons: string[];
   links: LinkCapture[];
   forms: FormCapture[];
+  paths: string[];
+  clicks: ClickCapture[];
   screenshotFile: string;
   error: string | null;
 };

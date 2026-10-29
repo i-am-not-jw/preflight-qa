@@ -25,10 +25,10 @@ const stepSchema = z.object({
 });
 
 const featureSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  pageUrl: z.string().optional(),
-  foundBy: z.string().optional(),
+  major: z.string(),
+  middle: z.string(),
+  minor: z.string(),
+  description: z.string(),
 });
 
 const caseSchema = z.object({
@@ -39,11 +39,9 @@ const caseSchema = z.object({
   mode: z.enum(["auto", "manual"]),
 });
 
-export async function crawlSite(url: string, maxPages = 15) {
+export async function crawlSite(url: string) {
   const start = parsePageUrl(url, { allowLocal: true });
-  const dir = path.join(root, ".preflight", "crawls", randomUUID());
-  await mkdir(dir, { recursive: true });
-  const pages = await crawl(start, dir, { maxPages, allowLocal: true });
+  const pages = await crawl(start, { allowLocal: true });
   return {
     pages: pages.map((page) => ({
       url: page.url,
@@ -56,7 +54,8 @@ export async function crawlSite(url: string, maxPages = 15) {
       formFields: page.forms.flatMap((form) =>
         form.fields.map((field) => ({ ...field, method: form.method, action: form.action })),
       ),
-      screenshot: page.screenshotFile ? path.join(dir, page.screenshotFile) : null,
+      paths: page.paths,
+      clicks: page.clicks,
       error: page.error,
     })),
   };
@@ -89,15 +88,14 @@ server.registerTool(
   "crawl_site",
   {
     description:
-      "Open same-domain pages without logging in or submitting forms. Localhost is allowed. Returns titles, headings, nav, buttons, links, form fields, and screenshot file paths.",
+      "Open the start page without logging in or submitting forms. Localhost is allowed. Returns same-site addresses, including hashes, and where up to 20 clicks go. Does not take screenshots or follow the site map.",
     inputSchema: {
       url: z.string().describe("Site URL. http://localhost is allowed."),
-      max_pages: z.number().int().min(1).max(15).optional().describe("Pages to open. Default 15."),
     },
   },
-  async ({ url, max_pages }) => {
+  async ({ url }) => {
     try {
-      return textResult(await crawlSite(url, max_pages ?? 15));
+      return textResult(await crawlSite(url));
     } catch (error) {
       return textResult(error instanceof Error ? error.message : "crawl_failed", true);
     }
@@ -107,7 +105,8 @@ server.registerTool(
 server.registerTool(
   "save_feature_list",
   {
-    description: "Save the feature list you wrote and the user reviewed.",
+    description:
+      "Save the reviewed feature table. Each row has major, middle, minor, and description. Use - for an empty cell.",
     inputSchema: {
       project: z.string().describe("Short project name, such as example."),
       features: z.array(featureSchema),
@@ -202,9 +201,9 @@ server.registerTool(
   async ({ project }) => {
     try {
       const dir = projectPath(project);
-      const features = (await readJson<{ features: { name?: string; description?: string; pageUrl?: string }[] }>(
-        path.join(dir, "features.json"),
-      )) ?? { features: [] };
+      const features = (await readJson<{
+        features: { major?: string; middle?: string; minor?: string; description?: string; name?: string }[];
+      }>(path.join(dir, "features.json"))) ?? { features: [] };
       const cases = (await readJson<{ cases: { feature?: string; type?: string; steps?: unknown[]; expected?: string; mode?: string }[] }>(
         path.join(dir, "cases.json"),
       )) ?? { cases: [] };

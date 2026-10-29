@@ -30,7 +30,8 @@ describe("public urls", () => {
     assert.equal(isPrivateAddress("8.8.8.8"), false);
     assert.equal(shouldVisit(start, "https://example.com/file.pdf"), null);
     assert.equal(shouldVisit(start, "https://other.example/docs"), null);
-    assert.equal(shouldVisit(start, "https://example.com/docs#top"), "https://example.com/docs");
+    assert.equal(shouldVisit(start, "https://example.com/docs#top"), "https://example.com/docs#top");
+    assert.equal(shouldVisit(start, "https://example.com/#find"), "https://example.com/#find");
   });
 
   it("allows loopback only when the local tool asks for it", () => {

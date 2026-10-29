@@ -1,6 +1,6 @@
 export type ReportInput = {
   project: string;
-  features: { name?: string; description?: string; pageUrl?: string }[];
+  features: { major?: string; middle?: string; minor?: string; description?: string; name?: string; pageUrl?: string }[];
   cases: { feature?: string; type?: string; steps?: unknown[]; expected?: string; mode?: string }[];
   runs: { url?: string; ok?: boolean; steps?: { action?: string; ok?: boolean; detail?: string }[] }[];
   baseline: {
@@ -20,8 +20,10 @@ function lines(items: string[]): string {
 
 export function buildReport(input: ReportInput): { markdown: string; html: string } {
   const manual = input.cases.filter((item) => item.mode === "manual");
-  const featureLines = input.features.map(
-    (item) => `${item.name ?? "Untitled"}${item.pageUrl ? ` (${item.pageUrl})` : ""}${item.description ? `: ${item.description}` : ""}`,
+  const featureLines = input.features.map((item) =>
+    item.major || item.middle || item.minor
+      ? [item.major || "-", item.middle || "-", item.minor || "-", item.description || ""].join(" | ")
+      : `${item.name ?? "Untitled"}${item.description ? `: ${item.description}` : ""}`,
   );
   const caseLines = input.cases.map(
     (item) => `${item.mode ?? "auto"} ${item.type ?? ""} ${item.feature ?? ""} — ${item.expected ?? ""}`.trim(),
