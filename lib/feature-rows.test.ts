@@ -26,12 +26,12 @@ describe("feature rows", () => {
       ],
       "ko",
     );
-    assert.equal(rows.some((row) => row.middle === "language" && row.major === "Find a bus"), true);
-    assert.equal(rows.filter((row) => row.minor === "route").length, 1);
-    assert.equal(rows.some((row) => row.minor === "google maps link"), true);
-    assert.equal(rows.some((row) => row.minor === "Key attractions"), true);
-    assert.equal(rows.some((row) => row.major === "Map"), true);
-    assert.equal(rows.some((row) => row.description.includes("Skip")), false);
+    assert.equal(rows.some((row) => row.screen === "Find a bus" && row.action.includes("언어")), true);
+    assert.equal(rows.filter((row) => row.action.includes("도착 지역")).length, 1);
+    assert.equal(rows.filter((row) => row.action.includes("밤")).length, 1);
+    assert.equal(rows.some((row) => row.action.includes("구글 맵")), true);
+    assert.equal(rows.some((row) => row.screen === "Map"), true);
+    assert.equal(rows.every((row) => row.expected === "" && row.otherwise === "" && row.importance === ""), true);
     assert.equal(rows.length < 8, true);
   });
 });

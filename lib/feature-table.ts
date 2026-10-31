@@ -2,10 +2,11 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 export type FeatureRow = {
-  major: string;
-  middle: string;
-  minor: string;
-  description: string;
+  screen: string;
+  action: string;
+  expected: string;
+  otherwise: string;
+  importance: string;
 };
 
 export async function readFeatureTable(project: string): Promise<FeatureRow[] | null> {

@@ -41,58 +41,17 @@ export function draftFeatureRows(
   const day = routes.filter((click) => !night.includes(click));
   const sections = clicks.filter((click) => click.href.startsWith("#") && click.href !== "#find");
   const rows: FeatureRow[] = [];
+  const add = (screen: string, action: string) => {
+    rows.push({ screen, action, expected: "", otherwise: "", importance: "" });
+  };
 
-  if (languages.length > 0) {
-    rows.push({
-      major: finder,
-      middle: "language",
-      minor: "-",
-      description: say(lang, "화면 언어를 바꾼다.", "Switch the page language."),
-    });
-  }
+  if (languages.length > 0) add(finder, say(lang, "화면 언어를 바꾼다.", "Switch the page language."));
   if (day.length > 0) {
-    rows.push({
-      major: finder,
-      middle: "destination",
-      minor: "route",
-      description: say(
-        lang,
-        "출발지에서 도착 지역으로 가는 노선을 고른다.",
-        "Choose a route from the departure place to an area.",
-      ),
-    });
+    add(finder, say(lang, "출발지에서 도착 지역으로 가는 노선을 고른다.", "Choose a route from the departure place to an area."));
   }
-  if (night.length > 0) {
-    rows.push({
-      major: finder,
-      middle: "destination",
-      minor: "night",
-      description: say(lang, "밤에 운행하는 노선을 확인한다.", "Check which route runs at night."),
-    });
-  }
-  for (const click of maps) {
-    rows.push({
-      major: finder,
-      middle: "-",
-      minor: "google maps link",
-      description: say(lang, "구글 맵 링크로 목적지를 연다.", "Open the destination in Google Maps."),
-    });
-  }
-  if (attractions.length > 0) {
-    rows.push({
-      major: finder,
-      middle: "-",
-      minor: "Key attractions",
-      description: say(lang, "주요 관광지를 목적지로 고른다.", "Choose a main attraction as the destination."),
-    });
-  }
-  for (const click of sections) {
-    rows.push({
-      major: click.text || "-",
-      middle: click.text || "-",
-      minor: "-",
-      description: say(lang, `${click.text} 화면으로 이동한다.`, `Open the ${click.text} section.`),
-    });
-  }
+  if (night.length > 0) add(finder, say(lang, "밤에 운행하는 노선을 확인한다.", "Check which route runs at night."));
+  for (const click of maps) add(finder, say(lang, "구글 맵에서 목적지를 연다.", "Open the destination in Google Maps."));
+  if (attractions.length > 0) add(finder, say(lang, "주요 관광지를 목적지로 고른다.", "Choose a main attraction as the destination."));
+  for (const click of sections) add(click.text || finder, say(lang, `${click.text} 화면을 연다.`, `Open the ${click.text} screen.`));
   return rows;
 }

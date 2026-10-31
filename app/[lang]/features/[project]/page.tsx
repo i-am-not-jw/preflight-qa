@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isLang, t, type Lang } from "@/lib/i18n";
-import { readFeatureTable, type FeatureRow } from "@/lib/feature-table";
+import { FeatureTableView } from "@/components/feature-table-view";
+import { readFeatureTable } from "@/lib/feature-table";
+import { isLang, t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -33,35 +34,8 @@ export default async function FeatureTablePage({
       {rows.length === 0 ? (
         <p className="mt-6 text-sm text-stone-600">{t(lang, "empty_table")}</p>
       ) : (
-        <FeatureRows lang={lang} rows={rows} />
+        <FeatureTableView lang={lang} rows={rows} />
       )}
     </main>
-  );
-}
-
-function FeatureRows({ lang, rows }: { lang: Lang; rows: FeatureRow[] }) {
-  return (
-    <div className="mt-6 overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="bg-stone-200 text-left">
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "major")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "middle")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "minor")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "feature_desc")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={`${row.major}-${row.middle}-${row.minor}-${index}`}>
-              <td className="border border-stone-300 px-3 py-2 font-medium">{row.major}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.middle}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.minor}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }

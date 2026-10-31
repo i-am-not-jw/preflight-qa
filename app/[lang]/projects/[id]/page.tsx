@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FeatureTableView } from "@/components/feature-table-view";
 import { draftFeatureRows } from "@/lib/feature-rows";
-import type { FeatureRow } from "@/lib/feature-table";
-import { isLang, t, type Lang } from "@/lib/i18n";
+import { isLang, t } from "@/lib/i18n";
 import { readProject } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
       {rows.length === 0 ? (
         <p className="mt-6 text-sm text-stone-600">{t(lang, "no_areas")}</p>
       ) : (
-        <FeatureTable lang={lang} rows={rows} />
+        <>
+          <FeatureTableView lang={lang} rows={rows} />
+          {rows.some((row) => !row.expected) ? <p className="mt-4 text-sm text-stone-700">{t(lang, "fill_expected")}</p> : null}
+        </>
       )}
 
       <details className="mt-10 text-sm text-stone-600">
@@ -59,30 +62,4 @@ export default async function ProjectPage({ params }: { params: Promise<{ lang: 
   );
 }
 
-function FeatureTable({ lang, rows }: { lang: Lang; rows: FeatureRow[] }) {
-  return (
-    <div className="mt-6 overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="bg-stone-200 text-left">
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "major")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "middle")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "minor")}</th>
-            <th className="border border-stone-300 px-3 py-2">{t(lang, "feature_desc")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={`${row.major}-${row.middle}-${row.minor}-${index}`} className="bg-white">
-              <td className="border border-stone-300 px-3 py-2 font-medium">{row.major}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.middle}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.minor}</td>
-              <td className="border border-stone-300 px-3 py-2">{row.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 

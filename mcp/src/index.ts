@@ -25,10 +25,11 @@ const stepSchema = z.object({
 });
 
 const featureSchema = z.object({
-  major: z.string(),
-  middle: z.string(),
-  minor: z.string(),
-  description: z.string(),
+  screen: z.string().min(1),
+  action: z.string().min(1),
+  expected: z.string().min(1),
+  otherwise: z.string().optional(),
+  importance: z.enum(["필수", "선택"]).optional(),
 });
 
 const caseSchema = z.object({
@@ -106,7 +107,7 @@ server.registerTool(
   "save_feature_list",
   {
     description:
-      "Save the reviewed feature table. Each row has major, middle, minor, and description. Use - for an empty cell.",
+      "Save the reviewed feature list. screen, action, and expected are required. otherwise and importance are optional. importance is 필수 or 선택. screen uses a visible path such as 설정 > 팀 > 멤버.",
     inputSchema: {
       project: z.string().describe("Short project name, such as example."),
       features: z.array(featureSchema),
@@ -202,7 +203,7 @@ server.registerTool(
     try {
       const dir = projectPath(project);
       const features = (await readJson<{
-        features: { major?: string; middle?: string; minor?: string; description?: string; name?: string }[];
+        features: { screen?: string; action?: string; expected?: string; otherwise?: string; importance?: string; name?: string; description?: string }[];
       }>(path.join(dir, "features.json"))) ?? { features: [] };
       const cases = (await readJson<{ cases: { feature?: string; type?: string; steps?: unknown[]; expected?: string; mode?: string }[] }>(
         path.join(dir, "cases.json"),
