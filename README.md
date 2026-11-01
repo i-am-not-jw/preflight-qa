@@ -12,18 +12,16 @@
 
 ## 실행
 
-개발 중에는 `npm run dev` 후 http://localhost:3000/en 입니다.
+개발 중에는 `npm run dev` 후 http://localhost:3100/en 입니다. 3000번은 Makerkit 테스트 앱이 씁니다.
 
-공개 주소는 개발 서버로 켜면 폼이 동작하지 않습니다. 공개용은 아래처럼 운영 빌드로 켭니다.
+화면은 이 컴퓨터에서만 엽니다.
 
 ```
 npm run build
 PLAYWRIGHT_BROWSERS_PATH="$HOME/Library/Caches/ms-playwright" npm start
 ```
 
-영어는 `/en`, 한국어는 `/ko`입니다. 주소에 언어가 없으면 `/en`으로 갑니다.
-
-공개 주소는 https://preflight.kogenote.com/en 과 https://preflight.kogenote.com/ko 입니다. 이 주소는 이 컴퓨터에서 `npm start`가 켜져 있을 때만 열립니다.
+영어는 http://localhost:3100/en , 한국어는 http://localhost:3100/ko 입니다. 주소에 언어가 없으면 `/en`으로 갑니다.
 
 `npm test`는 주소 판별, 기능 초안 파싱, 언어 경로, 실행 금지 규칙, 리포트 문장을 확인합니다.
 

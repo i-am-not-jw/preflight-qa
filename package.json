@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3100",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3100",
     "lint": "eslint",
     "test": "node --experimental-strip-types --test lib/public-url.test.ts lib/features.test.ts lib/locale.test.ts lib/feature-rows.test.ts mcp/src/safety.test.ts mcp/src/report.test.ts"
   },
