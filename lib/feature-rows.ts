@@ -1,5 +1,12 @@
-import type { FeatureRow } from "./feature-table.ts";
 import type { ClickCapture } from "./types";
+
+export type FeatureRow = {
+  screen: string;
+  action: string;
+  expected: string;
+  otherwise: string;
+  importance: string;
+};
 
 type DraftLang = "ko" | "en";
 

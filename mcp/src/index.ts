@@ -6,6 +6,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { crawl } from "../../lib/crawl.ts";
+import { draftFeatureRows } from "../../lib/feature-rows.ts";
 import { parsePageUrl } from "../../lib/public-url.ts";
 import { buildReport } from "./report.ts";
 import { baseline, runCase } from "./run.ts";
@@ -40,10 +41,11 @@ const caseSchema = z.object({
   mode: z.enum(["auto", "manual"]),
 });
 
-export async function crawlSite(url: string) {
+export async function crawlSite(url: string, lang: "ko" | "en" = "ko") {
   const start = parsePageUrl(url, { allowLocal: true });
   const pages = await crawl(start, { allowLocal: true });
   return {
+    features: draftFeatureRows(pages, lang),
     pages: pages.map((page) => ({
       url: page.url,
       status: page.status,
@@ -89,14 +91,15 @@ server.registerTool(
   "crawl_site",
   {
     description:
-      "Open the start page without logging in or submitting forms. Localhost is allowed. Returns same-site addresses, including hashes, and where up to 20 clicks go. Does not take screenshots or follow the site map.",
+      "Open the start page without logging in or submitting forms. Localhost is allowed. Returns a draft feature table plus same-site addresses and where up to 20 clicks go. Does not take screenshots or follow the site map.",
     inputSchema: {
       url: z.string().describe("Site URL. http://localhost is allowed."),
+      lang: z.enum(["ko", "en"]).optional().describe("Language of the draft sentences. Defaults to ko."),
     },
   },
-  async ({ url }) => {
+  async ({ url, lang }) => {
     try {
-      return textResult(await crawlSite(url));
+      return textResult(await crawlSite(url, lang));
     } catch (error) {
       return textResult(error instanceof Error ? error.message : "crawl_failed", true);
     }
